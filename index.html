@@ -1,6 +1,5 @@
 <html>
   <head>
-    <script src="https://simplycalc.com/base64.js"></script>
   </head>
   <body>
     <img id="base64img" src="">
@@ -9,7 +8,7 @@
     
       const img = url.searchParams.get("data")
       var imgElm = document.getElementById("base64img")
-      imgElm.src = "data:image/png;base64," + base64_decode(img)
+      imgElm.src = "data:image/png;base64," + img.replace(/-/g, '+').replace(/_/g, '/')
 
       // for copy
       var canvas = document.createElement("canvas")
@@ -21,7 +20,7 @@
       context.drawImage(imgElm, 0, 0);
       
       try {
-          canvas.toBlob(function(blob) { 
+          canvas.toBlob((blob) => { 
             console.log(blob)
             const item = new ClipboardItem({"image/png": blob });
             navigator.clipboard.write([item]); 
