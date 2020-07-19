@@ -9,7 +9,7 @@
     
       const img = url.searchParams.get("data")
       var imgElm = document.getElementById("base64img")
-      imgElm.src = base64_decode(img)
+      imgElm.src = "data:image/png;base64," + base64_decode(img)
 
       // for copy
       var canvas = document.createElement("canvas")
