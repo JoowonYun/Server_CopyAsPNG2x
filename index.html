@@ -1,25 +1,15 @@
 <html>
   <head>
+    <script src="https://simplycalc.com/base64.js"></script>
   </head>
   <body>
     <img id="base64img" src="">
     <script type="text/javascript">
-      function hexToBytes(hex) {
-          for (var bytes = [], c = 0; c < hex.length; c += 2)
-          bytes.push(parseInt(hex.substr(c, 2), 16));
-          return bytes;
-      }
-
       const url = new URL(location.href)
     
       const img = url.searchParams.get("data")
-      const base64imgStr = btoa(new Uint8Array(hexToBytes(img)).reduce(function (data, byte) {
-        return data + String.fromCharCode(byte);
-      }, ''))
-      const imgStr = 'data:image/png;base64,' + base64imgStr
-
       var imgElm = document.getElementById("base64img")
-      imgElm.src = imgStr
+      imgElm.src = base64_decode(img)
 
       // for copy
       var canvas = document.createElement("canvas")
@@ -29,15 +19,17 @@
       let context = canvas.getContext('2d');
 
       context.drawImage(imgElm, 0, 0);
-
+      
       try {
-        canvas.toBlob(function(blob) { 
-            const item = new ClipboardItem({ "image/png": blob });
+          canvas.toBlob(function(blob) { 
+            console.log(blob)
+            const item = new ClipboardItem({"image/png": blob });
             navigator.clipboard.write([item]); 
-        });
-      } catch (error) {
-        console.log(error)
-      }
+          });
+        } catch (error) {
+          console.log(error)
+        }
+      
     </script>
   </body>
 </html>
