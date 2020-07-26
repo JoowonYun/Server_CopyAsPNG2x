@@ -15,7 +15,7 @@ func main() {
 
 	imageMap := make(map[string]string)
 
-	e.POST("/image", func(c echo.Context) error {
+	e.POST("/copyaspng2x/image", func(c echo.Context) error {
 		image := c.FormValue("image")
 
 		hash := c.FormValue("hash")
@@ -25,7 +25,7 @@ func main() {
 		return c.String(http.StatusOK, "")
 	})
 
-	e.GET("view", func(c echo.Context) error {
+	e.GET("/copyaspng2x/view", func(c echo.Context) error {
 		hash := c.QueryParams().Get("hash")
 		width := c.QueryParams().Get("width")
 
@@ -81,5 +81,6 @@ func main() {
 
 	// certfile := "/Users/yun/localhost+1.pem"
 	// keyfile := "/Users/yun/localhost+1-key.pem"
-	e.Logger.Fatal(e.Start(":8000"))
+	// e.Logger.Fatal(e.StartTLS(":8000", certfile, keyfile))
+	e.Logger.Fatal(e.Start(":80"))
 }
