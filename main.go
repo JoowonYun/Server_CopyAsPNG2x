@@ -1,6 +1,7 @@
 package main
 
 import (
+	"sync"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -13,13 +14,22 @@ func main() {
 		AllowOrigins: []string{"*"},
 	}))
 
-	imageMap := make(map[string]string)
+	var mutex = new(sync.Mutex)
+	var cond = sync.NewCond(mutex)
+
+	imageMap := make(map[string]chan string)
 
 	e.POST("/copyaspng2x/image", func(c echo.Context) error {
 		hash := c.FormValue("hash")
 		image := c.FormValue("image")
 
-		imageMap[hash] = image
+		ch := make(chan string, 1)
+
+		cond.L.Lock()
+		imageMap[hash] = ch
+		imageMap[hash] <-image
+		cond.Broadcast()
+		cond.L.Unlock()
 
 		println("POST / " + c.RealIP() + " / " + hash)
 		return c.String(http.StatusOK, "")
@@ -28,7 +38,19 @@ func main() {
 	e.GET("/copyaspng2x/view", func(c echo.Context) error {
 		hash := c.QueryParams().Get("hash")
 		width := c.QueryParams().Get("width")
-		image, exist := imageMap[hash]
+		
+		var imageCh chan string
+		exist := false
+		cond.L.Lock()
+		for true {
+			imageCh, exist = imageMap[hash]
+			if exist {
+				break
+			}
+			cond.Wait() 
+		}
+		cond.L.Unlock()
+		image := <-imageCh
 
 		println("GET / " + c.RealIP() + " / " + hash)
 		if !exist {
