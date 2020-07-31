@@ -16,22 +16,23 @@ func main() {
 	imageMap := make(map[string]string)
 
 	e.POST("/copyaspng2x/image", func(c echo.Context) error {
-		image := c.FormValue("image")
-
 		hash := c.FormValue("hash")
+		image := c.FormValue("image")
 
 		imageMap[hash] = image
 
+		println("POST / " + c.RealIP() + " / " + hash)
 		return c.String(http.StatusOK, "")
 	})
 
 	e.GET("/copyaspng2x/view", func(c echo.Context) error {
 		hash := c.QueryParams().Get("hash")
 		width := c.QueryParams().Get("width")
-
 		image, exist := imageMap[hash]
+
+		println("GET / " + c.RealIP() + " / " + hash)
 		if !exist {
-			return c.HTML(http.StatusOK, "<p>No data</p>")
+			return c.HTML(http.StatusOK, "<p>Try again.</p>")
 		}
 
 		delete(imageMap, hash)
@@ -52,7 +53,7 @@ func main() {
 		</style>
 
 		<div class="wrap">
-			<img id="base64img" src=`+`data:image/png;base64,`+image+`>
+			<img id="base64img" src=`+`data:image/png;base64,`+ image +`>
 		</div>
 		<script type="text/javascript">
 		var imgElm = document.getElementById("base64img")
@@ -79,8 +80,7 @@ func main() {
 	  </script>`)
 	})
 
-	// certfile := "/Users/yun/localhost+1.pem"
-	// keyfile := "/Users/yun/localhost+1-key.pem"
-	// e.Logger.Fatal(e.StartTLS(":8000", certfile, keyfile))
-	e.Logger.Fatal(e.Start(":80"))
+	certfile := "/etc/letsencrypt/live/figma.joowonyun.space/fullchain.pem"
+	keyfile := "/etc/letsencrypt/live/figma.joowonyun.space/privkey.pem"
+	e.Logger.Fatal(e.StartTLS(":443", certfile, keyfile))
 }
