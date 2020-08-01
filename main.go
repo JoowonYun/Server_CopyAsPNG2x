@@ -82,8 +82,8 @@ func main() {
 
 		// for copy
 		var canvas = document.createElement("canvas")
-		canvas.width = imgElm.clientWidth;
-		canvas.height = imgElm.clientHeight;
+		canvas.width = imgElm.clientWidth * 2;
+		canvas.height = imgElm.clientHeight * 2;
   
 		let context = canvas.getContext('2d');
   
