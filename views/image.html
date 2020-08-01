@@ -1,6 +1,58 @@
-<head>
-    <link rel="stylesheet" href="../stylesheets/stylesheet.css">
-</head>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@500&display=swap');
+    body {
+        margin: 0;
+        font-family: 'Heebo', sans-serif;
+        display: flex;
+        justify-content: center;
+    }
+
+    .wrap {
+        z-index: 1;
+    }
+
+    img {
+        width: {{.width}}px;
+    }
+
+    .snackbar {
+        z-index: 555;
+        padding: 20px 24px;
+        background: rgba(0,0,0,.9);
+        max-width: 282px;
+        border-radius: 500px;
+        display: flex;
+        align-items: center;
+        position: absolute;
+        top: 32px;
+        z-index: 5555555;
+        animation-duration: 0.6s;
+        animation-timing-function: ease-in-out;
+        animation-name: movein;
+    }
+
+    .message {
+        color: #fff;
+        line-height: 140%;
+        font-weight: 500;
+    }
+
+    .icon_check {
+        margin-right: 10px;
+    }
+
+    @keyframes movein {
+        from{
+        top: -62px;
+        opacity: 0.5;
+        }
+
+        to {
+        top: 32px;
+        opacity: 1;
+        }
+    }
+</style>
 
 <div class="snackbar">
     <svg class="icon_check" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
