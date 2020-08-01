@@ -29,6 +29,24 @@
         animation-duration: 0.6s;
         animation-timing-function: ease-in-out;
         animation-name: movein;
+        opacity: "1";
+    }
+
+    .snackbar {
+        z-index: 555;
+        padding: 20px 24px;
+        background: rgba(0,0,0,.9);
+        max-width: 282px;
+        border-radius: 500px;
+        display: flex;
+        align-items: center;
+        position: absolute;
+        top: 32px;
+        z-index: 5555555;
+        animation-duration: 0.6s;
+        animation-timing-function: ease-in-out;
+        animation-name: movein;
+        opacity: "0";
     }
 
     .message {
@@ -52,9 +70,36 @@
         opacity: 1;
         }
     }
+
+    @keyframes fadeout {
+        from {
+            opacity: 1;
+        }
+
+        to {
+            opacity: 0;
+        }
+    }
+
+    .fadeout {
+        z-index: 555;
+        padding: 20px 24px;
+        background: rgba(0,0,0,.9);
+        max-width: 282px;
+        border-radius: 500px;
+        display: flex;
+        align-items: center;
+        position: absolute;
+        top: 32px;
+        z-index: 5555555;
+        animation-duration: 0.3s;
+        animation-timing-function: ease-in-out;
+        animation-name: fadeout;    
+    }
+
 </style>
 
-<div class="snackbar">
+<div class="snackbar" id="snackbar">
     <svg class="icon_check" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path fill-rule="evenodd" clip-rule="evenodd" d="M18 5.55789C18 5.65874 17.9587 5.75534 17.8855 5.82588L7.43653 15.893C7.28845 16.0357 7.05168 16.0357 6.9036 15.893L2.11449 11.2789C2.04127 11.2084 2 11.1118 2 11.0109C2 10.9101 2.04127 10.8135 2.11449 10.7429L3.34224 9.56002C3.49019 9.41748 3.72671 9.41734 3.87484 9.5597L7.16987 12.7265L16.125 4.10688C16.2731 3.96433 16.5097 3.96438 16.6578 4.107L17.8855 5.28989C17.9587 5.36043 18 5.45703 18 5.55789Z" fill="#9A81FF"/>
     </svg>
@@ -77,8 +122,17 @@
 
     try {
         canvas.toBlob((blob) => { 
+            var snackBarElm = document.getElementById("snackbar")
+            snackBarElm.style.opacity = "1"
+
             const item = new ClipboardItem({"image/png": blob });
             navigator.clipboard.write([item]); 
+
+            setTimeout(() => {
+                var snackBarElm = document.getElementById("snackbar")
+                snackBarElm.className = "fadeout"
+                snackBarElm.style.opacity = "0"
+            }, 1500)
         });
     } catch (error) {
         console.log(error)
