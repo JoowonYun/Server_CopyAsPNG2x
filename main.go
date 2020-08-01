@@ -1,8 +1,10 @@
 package main
 
 import (
+	"io"
 	"sync"
 	"net/http"
+	"html/template"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -13,6 +15,11 @@ func main() {
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
 	}))
+
+	renderer := &TemplateRenderer{
+		templates: template.Must(template.ParseGlob("./views/*.html")),
+	}
+	e.Renderer = renderer
 
 	var mutex = new(sync.Mutex)
 	var cond = sync.NewCond(mutex)
@@ -59,50 +66,29 @@ func main() {
 
 		delete(imageMap, hash)
 
-		return c.HTML(http.StatusOK, `
-		<style>
-			body {
-				margin: 0;
-			}
-			.wrap {
-				display: flex;
-				justify-content: center;
-				flex-wrap: wrap;
-			}
-			img {
-				width: `+width+`px;
-			}
-		</style>
-
-		<div class="wrap">
-			<img id="base64img" src=`+`data:image/png;base64,`+ image +`>
-		</div>
-		<script type="text/javascript">
-		var imgElm = document.getElementById("base64img")
-
-		// for copy
-		var canvas = document.createElement("canvas")
-		canvas.width = imgElm.clientWidth * 2;
-		canvas.height = imgElm.clientHeight * 2;
-  
-		let context = canvas.getContext('2d');
-  
-		context.drawImage(imgElm, 0, 0);
-		
-		try {
-			canvas.toBlob((blob) => { 
-			  console.log(blob)
-			  const item = new ClipboardItem({"image/png": blob });
-			  navigator.clipboard.write([item]); 
-			});
-		  } catch (error) {
-			console.log(error)
-		  }
-		
-	  </script>`)
+		return c.Render(http.StatusOK, "image.html", map[string]interface{}{
+			"width": width,
+			"image": image,
+		})
 	})
 
 	certfile := "/etc/letsencrypt/live/figma.joowonyun.space/fullchain.pem"
 	keyfile := "/etc/letsencrypt/live/figma.joowonyun.space/privkey.pem"
 	e.Logger.Fatal(e.StartTLS(":443", certfile, keyfile))
+}
+
+// TemplateRenderer is a custom html/template renderer for Echo framework
+type TemplateRenderer struct {
+	templates *template.Template
+}
+
+// Render renders a template document
+func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+
+	// Add global methods if data is a map
+	if viewContext, isMap := data.(map[string]interface{}); isMap {
+		viewContext["reverse"] = c.Echo().Reverse
+	}
+
+	return t.templates.ExecuteTemplate(w, name, data)
 }

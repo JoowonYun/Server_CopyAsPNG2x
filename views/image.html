@@ -1,0 +1,37 @@
+<style>
+    body {
+        margin: 0;
+    }
+    .wrap {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    img {
+        width: {{.width}}px;
+    }
+</style>
+
+<div class="wrap">
+    <img id="base64img" src='data:image/png;base64,{{.image}}'>
+</div>
+<script type="text/javascript">
+    var imgElm = document.getElementById("base64img")
+    // for copy
+    var canvas = document.createElement("canvas")
+    canvas.width = imgElm.clientWidth * 2;
+    canvas.height = imgElm.clientHeight * 2;
+
+    let context = canvas.getContext('2d');
+
+    context.drawImage(imgElm, 0, 0);
+
+    try {
+        canvas.toBlob((blob) => { 
+            const item = new ClipboardItem({"image/png": blob });
+            navigator.clipboard.write([item]); 
+        });
+    } catch (error) {
+        console.log(error)
+    }
+</script>
