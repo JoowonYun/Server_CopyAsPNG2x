@@ -21,7 +21,7 @@
         background: rgba(0,0,0,.9);
         max-width: 282px;
         border-radius: 500px;
-        display: flex;
+        display: none;
         align-items: center;
         position: absolute;
         top: 32px;
@@ -29,7 +29,6 @@
         animation-duration: 0.6s;
         animation-timing-function: ease-in-out;
         animation-name: movein;
-        opacity: "0";
         animation-delay: 0.2s;
     }
 
@@ -107,7 +106,7 @@
     try {
         canvas.toBlob((blob) => { 
             var snackBarElm = document.getElementById("snackbar")
-            snackBarElm.style.opacity = "1"
+            snackBarElm.style.display = "flex"
 
             const item = new ClipboardItem({"image/png": blob });
             navigator.clipboard.write([item]); 
