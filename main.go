@@ -1,13 +1,14 @@
 package main
 
 import (
-	"io"
-	"sync"
-	"net/http"
 	"html/template"
+	"io"
+	"net/http"
+	"time"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	"github.com/tylerb/graceful"
 )
 
 func main() {
@@ -21,9 +22,6 @@ func main() {
 	}
 	e.Renderer = renderer
 
-	var mutex = new(sync.Mutex)
-	var cond = sync.NewCond(mutex)
-
 	imageMap := make(map[string]chan string)
 
 	e.POST("/copyaspng2x/image", func(c echo.Context) error {
@@ -32,39 +30,49 @@ func main() {
 
 		ch := make(chan string, 1)
 
-		cond.L.Lock()
 		imageMap[hash] = ch
-		imageMap[hash] <-image
-		cond.Broadcast()
-		cond.L.Unlock()
+		imageMap[hash] <- image
 
 		println("POST / " + c.RealIP() + " / " + hash)
 		return c.String(http.StatusOK, "")
 	})
 
 	e.GET("/copyaspng2x/view", func(c echo.Context) error {
+		time.After(5 * time.Second)
 		hash := c.QueryParams().Get("hash")
 		width := c.QueryParams().Get("width")
-		
+
 		var imageCh chan string
 		exist := false
-		cond.L.Lock()
-		for true {
-			imageCh, exist = imageMap[hash]
+
+		defer func() error {
+			ch, exist := imageMap[hash]
 			if exist {
-				break
+				close(ch)
+				delete(imageMap, hash)
 			}
-			cond.Wait() 
-		}
-		cond.L.Unlock()
-		image := <-imageCh
 
-		println("GET / " + c.RealIP() + " / " + hash)
+			if !exist {
+				return c.HTML(http.StatusOK, "<p>Try again.</p>")
+			}
+
+			return nil
+		}()
+
+		image := ""
+
+		timeoutCh := time.After(5 * time.Second)
+		imageCh, exist = imageMap[hash]
 		if !exist {
-			return c.HTML(http.StatusOK, "<p>Try again.</p>")
+			return nil
 		}
-
-		delete(imageMap, hash)
+		println("GET / " + c.RealIP() + " / " + hash)
+		select {
+		case <-timeoutCh:
+			println("Time out")
+			return c.HTML(http.StatusOK, "<p>Time out</p>")
+		case image = <-imageCh:
+		}
 
 		return c.Render(http.StatusOK, "image.html", map[string]interface{}{
 			"width": width,
@@ -74,7 +82,8 @@ func main() {
 
 	certfile := "/etc/letsencrypt/live/figma.joowonyun.space/fullchain.pem"
 	keyfile := "/etc/letsencrypt/live/figma.joowonyun.space/privkey.pem"
-	e.Logger.Fatal(e.StartTLS(":443", certfile, keyfile))
+	e.TLSServer.Addr = ":443"
+	graceful.ListenAndServeTLS(e.TLSServer, certfile, keyfile, 5*time.Second)
 }
 
 // TemplateRenderer is a custom html/template renderer for Echo framework
