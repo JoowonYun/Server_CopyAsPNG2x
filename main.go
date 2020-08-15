@@ -70,7 +70,7 @@ func main() {
 		select {
 		case <-timeoutCh:
 			println("GET - Time out / ", c.RealIP(), " / ", hash)
-			return c.HTML(http.StatusOK, "<p>Time out</p>")
+			return c.Render(http.StatusOK, "404.html", nil)
 		case image = <-imageCh:
 		}
 
