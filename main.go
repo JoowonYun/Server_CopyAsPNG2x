@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"time"
+	"strconv"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -25,14 +26,14 @@ func main() {
 	imageMap := make(map[string]chan string)
 
 	for i := 0; i < 100000; i++ {
-		imageMap[string(i)] = make(chan string, 1)
+		imageMap[strconv.Itoa(i)] = make(chan string, 2)
 	}
 
 	e.POST("/copyaspng2x/image", func(c echo.Context) error {
 		hash := c.FormValue("hash")
 		image := c.FormValue("image")
 
-		imageMap[hash] <- image
+		imageMap[hash] <-image
 
 		println("POST / " + c.RealIP() + " / " + hash)
 		return c.String(http.StatusOK, "")
@@ -44,7 +45,6 @@ func main() {
 		width := c.QueryParams().Get("width")
 
 		var imageCh chan string
-		exist := false
 
 		defer func() error {
 			ch, exist := imageMap[hash]
@@ -53,7 +53,7 @@ func main() {
 				delete(imageMap, hash)
 			}
 
-			imageMap[hash] = make(chan string, 1)
+			imageMap[hash] = make(chan string, 2)
 
 			if !exist {
 				return c.Render(http.StatusOK, "404.html", nil)
@@ -65,10 +65,7 @@ func main() {
 		image := ""
 
 		timeoutCh := time.After(5 * time.Second)
-		imageCh, exist = imageMap[hash]
-		if !exist {
-			return nil
-		}
+		imageCh, _ = imageMap[hash]
 		println("GET / " + c.RealIP() + " / " + hash)
 		select {
 		case <-timeoutCh:
@@ -86,7 +83,7 @@ func main() {
 	certfile := "/etc/letsencrypt/live/figma.joowonyun.space/fullchain.pem"
 	keyfile := "/etc/letsencrypt/live/figma.joowonyun.space/privkey.pem"
 	e.TLSServer.Addr = ":443"
-	graceful.ListenAndServeTLS(e.TLSServer, certfile, keyfile, 5*time.Second)
+	graceful.ListenAndServeTLS(e.TLSServer, certfile, keyfile, 10*time.Second)
 }
 
 // TemplateRenderer is a custom html/template renderer for Echo framework
