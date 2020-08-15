@@ -26,7 +26,7 @@ func main() {
 	imageMap := make(map[string]chan string)
 
 	for i := 0; i < 100000; i++ {
-		imageMap[strconv.Itoa(i)] = make(chan string, 2)
+		imageMap[strconv.Itoa(i)] = make(chan string, 1)
 	}
 
 	e.POST("/copyaspng2x/image", func(c echo.Context) error {
@@ -53,7 +53,7 @@ func main() {
 				delete(imageMap, hash)
 			}
 
-			imageMap[hash] = make(chan string, 2)
+			imageMap[hash] = make(chan string, 1)
 
 			if !exist {
 				return c.Render(http.StatusOK, "404.html", nil)
