@@ -56,7 +56,7 @@ func main() {
 			imageMap[hash] = make(chan string, 1)
 
 			if !exist {
-				return c.HTML(http.StatusOK, "<p>Try again.</p>")
+				return c.Render(http.StatusOK, "404.html", nil)
 			}
 
 			return nil
