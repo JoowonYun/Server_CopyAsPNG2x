@@ -24,13 +24,14 @@ func main() {
 
 	imageMap := make(map[string]chan string)
 
+	for i := 0; i < 100000; i++ {
+		imageMap[string(i)] = make(chan string, 1)
+	}
+
 	e.POST("/copyaspng2x/image", func(c echo.Context) error {
 		hash := c.FormValue("hash")
 		image := c.FormValue("image")
 
-		ch := make(chan string, 1)
-
-		imageMap[hash] = ch
 		imageMap[hash] <- image
 
 		println("POST / " + c.RealIP() + " / " + hash)
@@ -52,6 +53,8 @@ func main() {
 				delete(imageMap, hash)
 			}
 
+			imageMap[hash] = make(chan string, 1)
+
 			if !exist {
 				return c.HTML(http.StatusOK, "<p>Try again.</p>")
 			}
@@ -69,7 +72,7 @@ func main() {
 		println("GET / " + c.RealIP() + " / " + hash)
 		select {
 		case <-timeoutCh:
-			println("Time out")
+			println("GET - Time out / ", c.RealIP(), " / ", hash)
 			return c.HTML(http.StatusOK, "<p>Time out</p>")
 		case image = <-imageCh:
 		}
