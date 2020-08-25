@@ -99,9 +99,11 @@
 </div>
 
 <div class="wrap">
-    <img id="base64img" src='data:image/png;base64,{{.image}}'>
+    <img id="base64img" src='data:image/png;base64,{{.image}}' onclick='copy2xImg();' onmouseover="" style="cursor: pointer;">
 </div>
 <script type="text/javascript">
+document.getElementById("base64img").click()
+function copy2xImg() {
     var imgElm = document.getElementById("base64img")
     // for copy
     var canvas = document.createElement("canvas")
@@ -113,20 +115,39 @@
     context.drawImage(imgElm, 0, 0);
 
     try {
-        canvas.toBlob((blob) => { 
-            var snackBarElm = document.getElementById("snackbar")
-            snackBarElm.style.display = "flex"
+	var blobURL = canvas.toDataURL("image/png")
+	var blob = dataURItoBlob(blobURL)
 
-            const item = new ClipboardItem({"image/png": blob });
-            navigator.clipboard.write([item]); 
+        const item = new ClipboardItem({"image/png": blob });
+	navigator.clipboard.write([item]).then(
+	    () => {
+	        var snackBarElm = document.getElementById("snackbar")
+	        snackBarElm.style.opacity = "1"
+	        snackBarElm.style.display = "flex"
+	        snackBarElm.className = "snackbar"
 
-            setTimeout(() => {
-                var snackBarElm = document.getElementById("snackbar")
-                snackBarElm.className = "fadeout"
-                snackBarElm.style.opacity = "0"
-            }, 1500)
-        });
+                setTimeout(() => {
+                    var snackBarElm = document.getElementById("snackbar")
+                    snackBarElm.className = "fadeout"
+                    snackBarElm.style.opacity = "0"
+                }, 1500)
+	    },
+	    (err)=>{
+		console.log(err)
+	    }
+	)
     } catch (error) {
         console.log(error)
     }
+}
+
+function dataURItoBlob(dataURI) {
+    var byteString = atob(dataURI.split(',')[1]);
+    var ab = new ArrayBuffer(byteString.length);
+    var ia = new Uint8Array(ab);
+    for (var i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }	
+    return new Blob([ab], { type: 'image/png' });
+}	
 </script>
