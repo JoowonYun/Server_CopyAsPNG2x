@@ -79,8 +79,30 @@
         animation-name: fadeout;    
     }
 
-</style>
+    .modal {
+        display: none; /* Hidden by default */
+	position: fixed;
+        z-index: 1; /* Sit on top */
+	margin: 0;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(0,0,0,0.6); /* Black w/ opacity */
+	width: 100%;
+	height: 100%;
+    }
 
+    /* Modal Content/Box */
+    .modal-content {
+	background: #fff;
+        border-radius: 6px;
+        padding: 24px;
+        max-width: 400px;
+        min-width: 300px;
+        text-align: center;
+    }
+
+</style>
+<script  src="https://code.jquery.com/jquery-latest.min.js"></script>
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-174304860-1"></script>
 <script>
@@ -101,8 +123,31 @@
 <div class="wrap">
     <img id="base64img" src='data:image/png;base64,{{.image}}' onclick='copy2xImg();' onmouseover="" style="cursor: pointer;">
 </div>
+<div id="popup" class="modal">
+    <div id="popupBody" class="modal-content"></div>
+</div>
 <script type="text/javascript">
+if(!localStorage["isFirst"]) {
+    document.getElementById("popup").style.display = "flex";
+}
+$(document).ready(function(){
+    $("#popupBody").load("dialog");
+});
 document.getElementById("base64img").click()
+
+function closeDialog() {
+    localStorage.setItem("isFirst", true)
+    document.getElementById("popup").style.display = "none";
+}
+
+window.onclick = function(event) {
+    if(document.getElementById("popup").style.display != "none") {
+	    if(event.target == document.getElementById("closeBtn")) {
+	    	closeDialog();
+	    }
+    }
+}
+
 function copy2xImg() {
     var imgElm = document.getElementById("base64img")
     // for copy

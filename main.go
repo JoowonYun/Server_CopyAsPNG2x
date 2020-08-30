@@ -18,6 +18,8 @@ func main() {
 		AllowOrigins: []string{"*"},
 	}))
 
+	e.Static("/", "./views/img")
+	e.File("/favicon.ico", "./views/img/favicon.png")
 	renderer := &TemplateRenderer{
 		templates: template.Must(template.ParseGlob("./views/*.html")),
 	}
@@ -78,6 +80,10 @@ func main() {
 			"width": width,
 			"image": image,
 		})
+	})
+
+	e.GET("/copyaspng2x/dialog", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "dialog.html", nil)
 	})
 
 	certfile := "/etc/letsencrypt/live/figma.joowonyun.space/fullchain.pem"
