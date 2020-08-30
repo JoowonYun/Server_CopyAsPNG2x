@@ -1,0 +1,93 @@
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@500&display=swap');
+
+    body {
+        background: rgba(0,0,0,.6); /*Dialog 아래 레이어인 Dim은 opacity 60%*/
+        margin: 0;
+        font-family: 'Heebo', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .dialog {
+        background: #fff;
+        border-radius: 6px;
+        padding: 24px;
+        max-width: 400px;
+        min-width: 300px;
+        text-align: center;
+    }
+
+    .title {
+        font-size: 21px;
+        line-height: 30px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: #000;
+        text-align: left;
+    }
+
+    .contents {
+        font-size: 14px;
+        line-height: 160%;
+        color: rgba(0,0,0,.6);
+        text-align: left;
+    }
+
+    /*Buttons*/
+
+    .button-group {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 24px;
+        cursor: pointer;
+    }
+
+    .solid {
+        background: #9A80FF;
+        border-radius: 500px; /*높이와 상관 없이 큰 숫자를 입력*/
+        color: #ffffff;
+        margin-left: 4px;
+    }
+
+    .solid:active {
+        background: #8363FF;
+    }
+
+    .text {
+        border-radius: 500px; /*높이와 상관 없이 큰 숫자를 입력*/
+        color: #ffffff;	
+    }
+
+    .text:active {
+        background: rgba(255,255,255,.15);
+    }
+
+    .size-medium {
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 21px;
+    }
+
+    .explanation {
+        width: 306px;
+        margin: 12px 0 24px 0;
+    }
+
+</style>
+
+<div class="dialog">
+    <div class="title">Click to copy the image</div>
+    <img src="img_coach_mark.png" class="explanation"/>
+    <div class="contents">Just click if you want to copy the image. Then the image is copied to the clipboard.</div>
+    <div class="button-group">
+        <!-- <div class="size-medium text">
+            Close
+        </div> -->
+        <div class="size-medium solid">
+            Okay, I got it
+        </div>
+    </div>
+</div>
