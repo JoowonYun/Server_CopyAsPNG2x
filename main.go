@@ -42,7 +42,6 @@ func main() {
 	})
 
 	e.GET("/copyaspng2x/view", func(c echo.Context) error {
-		time.After(5 * time.Second)
 		hash := c.QueryParams().Get("hash")
 		width := c.QueryParams().Get("width")
 
@@ -66,7 +65,7 @@ func main() {
 
 		image := ""
 
-		timeoutCh := time.After(5 * time.Second)
+		timeoutCh := time.After(10 * time.Second)
 		imageCh, _ = imageMap[hash]
 		println("GET / " + c.RealIP() + " / " + hash)
 		select {
@@ -89,7 +88,7 @@ func main() {
 	certfile := "/etc/letsencrypt/live/figma.joowonyun.space/fullchain.pem"
 	keyfile := "/etc/letsencrypt/live/figma.joowonyun.space/privkey.pem"
 	e.TLSServer.Addr = ":443"
-	graceful.ListenAndServeTLS(e.TLSServer, certfile, keyfile, 10*time.Second)
+	graceful.ListenAndServeTLS(e.TLSServer, certfile, keyfile, 15*time.Second)
 }
 
 // TemplateRenderer is a custom html/template renderer for Echo framework
